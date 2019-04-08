@@ -14,6 +14,7 @@ namespace aspnet_core_dotnet_core
             var host = new WebHostBuilder()
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseUrls("http://*:8123") // listen on port 5000 on all network interfaces
                 .UseIISIntegration()
                 .UseStartup<Startup>()
                 .UseApplicationInsights()
