@@ -7,6 +7,7 @@ RUN dotnet restore
 
 # Copy everything else and build
 COPY . ./
+EXPOSE 5000
 RUN dotnet publish -c Release -o out
 
 # Build runtime image
