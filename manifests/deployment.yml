@@ -1,0 +1,16 @@
+apiVersion : apps/v1beta1
+kind: Deployment
+metadata:
+  name: "vnmpoc46"
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: "vnmpoc46"
+    spec:
+      containers:
+        - name: "vnmpoc46"
+          image: "vnmacr.azurecr.io/vnmpoc46"
+          ports:
+          - containerPort: 8123
