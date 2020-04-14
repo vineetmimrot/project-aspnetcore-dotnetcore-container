@@ -1,0 +1,50 @@
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    
+    - uses: azure/docker-login@v1
+      with:
+        login-server: vnmacr.azurecr.io
+        username: ${{ secrets.acr_vnmacr_username }}
+        password: ${{ secrets.acr_vnmacr_password }}
+    
+    - name: Build and push image to ACR
+      id: build-image
+      run: |
+        docker build "$GITHUB_WORKSPACE/aspnet-core-dotnet-core" -f  "aspnet-core-dotnet-core/Dockerfile" -t vnmacr.azurecr.io/vnmpocaks44:${{ github.sha }}
+        docker push vnmacr.azurecr.io/vnmpocaks44:${{ github.sha }}
+    
+    - uses: azure/k8s-set-context@v1
+      with:
+         kubeconfig: ${{ secrets.aks_vnmpocaks44_kubeConfig }}
+      id: login
+    
+    - name: Create namespace
+      run: |
+        namespacePresent=`kubectl get namespace | grep vnmpocaks44d6d9 | wc -l`
+        if [ $namespacePresent -eq 0 ]
+        then
+            echo `kubectl create namespace vnmpocaks44d6d9`
+        fi
+
+    - uses: azure/k8s-create-secret@v1
+      with:
+        namespace: vnmpocaks44d6d9
+        container-registry-url: vnmacr.azurecr.io
+        container-registry-username: ${{ secrets.acr_vnmacr_username }}
+        container-registry-password: ${{ secrets.acr_vnmacr_password }}
+        secret-name: vnmpocaks44dockerauth
+       
+    - uses: azure/k8s-deploy@v1
+      with:
+        namespace: vnmpocaks44d6d9
+        manifests: |
+          manifests/deployment-1.yml
+          manifests/service-1.yml
+        images: |
+          vnmacr.azurecr.io/vnmpocaks44:${{ github.sha }}
+        imagepullsecrets: |
+          vnmpocaks44dockerauth
