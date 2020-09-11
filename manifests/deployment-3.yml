@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: "vnmaks-d162"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "vnmaks-d162"
+  template:
+    metadata:
+      labels:
+        app: "vnmaks-d162"
+    spec:
+      containers:
+        - name: "vnmaks-d162"
+          image: "vnmacr.azurecr.io/vnmaks"
+          ports:
+          - containerPort: 8123
